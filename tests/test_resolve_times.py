@@ -9,6 +9,15 @@ spec.loader.exec_module(module)
 
 
 class TimeTests(unittest.TestCase):
+    def test_parse_offset_rejects_invalid_and_unicode_digits(self):
+        for value in ("", "+24:00", "+00:60", "+０１:００"):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    module.parse_offset(value)
+
+    def test_parse_offset_accepts_largest_valid_offset(self):
+        self.assertEqual(str(module.parse_offset("+23:59")), "23:59:00")
+
     def test_shanghai_midnight_is_previous_utc_day(self):
         value = module.resolve("2026-10-20", "Asia/Shanghai", "2026-10-20T09:30")
         self.assertEqual(value["first_read_utc"], "2026-10-19T16:00:00+00:00")
